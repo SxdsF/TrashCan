@@ -21,10 +21,26 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 
 public final class TrashCan {
+
+    /**
+     * 清理线程的清理频率
+     */
     private static final long CLEAR_FREQUENCY = 10000L;
+    /**
+     * 存放永不过期的cache
+     */
     private final Map<String, Cell<?>> mNeverExpiredCache = new HashMap<>();
+    /**
+     * 存放会过期的cache
+     */
     private final Map<String, Cell<?>> mExpiredCache = new HashMap<>();
+    /**
+     * 永不过期的cache的锁
+     */
     private final Lock mNeverExpiredLock = new ReentrantLock(true);
+    /**
+     * 会过期的cache的锁
+     */
     private final Lock mExpiredLock = new ReentrantLock(true);
 
     private TrashCan() {
@@ -41,6 +57,9 @@ public final class TrashCan {
         }, CLEAR_FREQUENCY, CLEAR_FREQUENCY, TimeUnit.MILLISECONDS);
     }
 
+    /**
+     * 会过期的cache清理
+     */
     private void expire() {
         mExpiredLock.lock();
         try {
@@ -72,10 +91,26 @@ public final class TrashCan {
         return InstanceHolder.INSTANCE;
     }
 
+    /**
+     * 向cache中存放，默认是永不过期
+     *
+     * @param key   key
+     * @param value value
+     * @param <V>
+     */
     public <V> void put(String key, V value) {
         this.put(key, value, TimeUnit.MILLISECONDS, Cell.WILL_NOT_INVALID);
     }
 
+    /**
+     * 向cache中存放
+     *
+     * @param key      key
+     * @param value    value
+     * @param timeUnit 时间单位
+     * @param duration 存放时间
+     * @param <V>
+     */
     public <V> void put(String key, V value, @NonNull TimeUnit timeUnit, long duration) {
         Cell<V> cell = new Cell<>();
         cell.mSaveTime = System.currentTimeMillis();
@@ -102,11 +137,28 @@ public final class TrashCan {
 
     }
 
+    /**
+     * 从cache中获取，默认取走时清除
+     *
+     * @param key  key
+     * @param type 缓存类型
+     * @param <V>
+     * @return
+     */
     public <V> V get(String key, Type type) {
         //默认是remove
         return this.get(key, type, true);
     }
 
+    /**
+     * 从cache中获取
+     *
+     * @param key      key
+     * @param type     缓存类型
+     * @param isRemove 是否取走时清除
+     * @param <V>
+     * @return
+     */
     public <V> V get(String key, Type type, boolean isRemove) {
         V value = null;
         switch (type) {
@@ -153,6 +205,9 @@ public final class TrashCan {
         return value;
     }
 
+    /**
+     * 清除所有缓存
+     */
     public void clear() {
         mNeverExpiredLock.lock();
         try {

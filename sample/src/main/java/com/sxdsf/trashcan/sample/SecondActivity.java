@@ -13,15 +13,15 @@ public class SecondActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_second);
-        List<String> data = TrashCan.getInstance().get("test");
+        List<String> data = TrashCan.getInstance().get("test", TrashCan.Type.STORAGE);
         for (String text : data) {
             System.out.println(text);
         }
-        System.out.println(TrashCan.getInstance().get("duration"));
+        System.out.println(TrashCan.getInstance().get("duration", TrashCan.Type.CACHE));
         findViewById(R.id.text).postDelayed(new Runnable() {
             @Override
             public void run() {
-                System.out.println(TrashCan.getInstance().get("duration"));
+                System.out.println(TrashCan.getInstance().get("duration", TrashCan.Type.CACHE));
             }
         }, 20000L);
     }
